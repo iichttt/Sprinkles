@@ -36,6 +36,7 @@
                         <gridRow yPlacement="center" height="25" id="JEm-BZ-9nM"/>
                         <gridRow id="pYC-iD-R0M"/>
                         <gridRow id="Crt-Rw-001"/>
+                        <gridRow id="Crt-Rw-002"/>
                         <gridRow yPlacement="center" height="25" id="Pji-6q-Ygl"/>
                         <gridRow id="bE9-d5-oCP"/>
                         <gridRow id="KM8-uD-Pam"/>
@@ -242,36 +243,26 @@
                             </textField>
                         </gridCell>
                         <gridCell row="Crt-Rw-001" column="uPx-20-9xx" id="Crt-Cl-Val">
-                            <stackView key="contentView" distribution="fill" orientation="horizontal" alignment="centerY" spacing="10" horizontalStackHuggingPriority="249.99998474121094" verticalStackHuggingPriority="249.99998474121094" detachesHiddenViews="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Crt-Sv-001">
-                                <rect key="frame" x="144" y="306" width="296" height="32"/>
-                                <subviews>
-                                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Crt-Bt-Lgt">
-                                        <rect key="frame" x="0.0" y="8" width="61" height="16"/>
-                                        <buttonCell key="cell" type="bevel" title="Button" bezelStyle="rounded" image="NSStatusUnavailable" imagePosition="leading" alignment="center" refusesFirstResponder="YES" imageScaling="proportionallyDown" inset="2" id="Crt-Bc-Lgt">
-                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                            <font key="font" metaFont="system"/>
-                                        </buttonCell>
-                                    </button>
-                                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Crt-Bt-Tst">
-                                        <rect key="frame" x="71" y="0.0" width="135" height="32"/>
-                                        <buttonCell key="cell" type="push" title="Trust Certificate" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Crt-Bc-Tst">
-                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
-                                            <font key="font" metaFont="system"/>
-                                        </buttonCell>
-                                        <connections>
-                                            <action selector="trustCertificatePressed:" target="-2" id="Crt-Ac-Tst"/>
-                                        </connections>
-                                    </button>
-                                </subviews>
-                                <visibilityPriorities>
-                                    <integer value="1000"/>
-                                    <integer value="1000"/>
-                                </visibilityPriorities>
-                                <customSpacing>
-                                    <real value="3.4028234663852886e+38"/>
-                                    <real value="3.4028234663852886e+38"/>
-                                </customSpacing>
-                            </stackView>
+                            <button key="contentView" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Crt-Bt-Lgt">
+                                <rect key="frame" x="144" y="318" width="290" height="16"/>
+                                <buttonCell key="cell" type="bevel" title="Button" bezelStyle="rounded" image="NSStatusUnavailable" imagePosition="leading" alignment="left" refusesFirstResponder="YES" imageScaling="proportionallyDown" inset="2" id="Crt-Bc-Lgt">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                            </button>
+                        </gridCell>
+                        <gridCell row="Crt-Rw-002" column="NO5-of-sb0" id="Crt-Cl-Pad"/>
+                        <gridCell row="Crt-Rw-002" column="uPx-20-9xx" id="Crt-Cl-Btn">
+                            <button key="contentView" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Crt-Bt-Tst">
+                                <rect key="frame" x="140" y="286" width="135" height="32"/>
+                                <buttonCell key="cell" type="push" title="Trust Certificate" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Crt-Bc-Tst">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="trustCertificatePressed:" target="-2" id="Crt-Ac-Tst"/>
+                                </connections>
+                            </button>
                         </gridCell>
                     </gridCells>
                 </gridView>

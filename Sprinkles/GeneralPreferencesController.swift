@@ -70,7 +70,26 @@ class GeneralPreferencesController: NSViewController, SettingsPane {
     certificateLight.image = NSImage(
       named: trusted ? NSImage.statusAvailableName : NSImage.statusUnavailableName)
     certificateLight.title = trusted ? "Trusted" : "Not trusted — browsers will refuse to connect"
-    trustCertificateButton.isHidden = trusted
+
+    // The whole grid row is hidden, not just the button: hiding the button on its own would leave
+    // the row holding an empty gap open under the status line.
+    if let grid = trustCertificateButton.superview as? NSGridView,
+      let row = grid.cell(for: trustCertificateButton)?.row
+    {
+      row.isHidden = trusted
+      resize(around: grid)
+    } else {
+      trustCertificateButton.isHidden = trusted
+    }
+  }
+
+  /// The pane is two rows tall in one state and three in the other, so its height is measured
+  /// rather than pinned to a number that can only be right for one of them. 15 above the grid and
+  /// 20 below it are the paddings the layout already asks for.
+  private func resize(around grid: NSGridView) {
+    view.layoutSubtreeIfNeeded()
+
+    preferredContentSize = NSSize(width: 480, height: ceil(grid.fittingSize.height) + 35)
   }
 
   @IBAction func chooseLocationPressed(_ sender: Any?) {

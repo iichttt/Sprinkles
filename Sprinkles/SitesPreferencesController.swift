@@ -19,8 +19,8 @@ final class SitesPreferencesController: NSViewController, SettingsPane {
 
   private let tableView = NSTableView()
   private let emptyLabel = NSTextField(wrappingLabelWithString: "")
-  private let editStyleButton = NSButton(title: "Edit sprinkles.css", target: nil, action: nil)
-  private let editScriptButton = NSButton(title: "Edit sprinkles.js", target: nil, action: nil)
+  private let revealStyleButton = NSButton(title: "Reveal sprinkles.css", target: nil, action: nil)
+  private let revealScriptButton = NSButton(title: "Reveal sprinkles.js", target: nil, action: nil)
 
   /// One row of the table. Comparing `[Row]` is what decides whether a redraw is needed, so
   /// everything the row draws has to live here - and nothing else has to.
@@ -80,12 +80,12 @@ final class SitesPreferencesController: NSViewController, SettingsPane {
     emptyLabel.textColor = .secondaryLabelColor
     emptyLabel.isHidden = true
 
-    editStyleButton.target = self
-    editStyleButton.action = #selector(editStylesPressed)
-    editScriptButton.target = self
-    editScriptButton.action = #selector(editScriptsPressed)
+    revealStyleButton.target = self
+    revealStyleButton.action = #selector(revealStylesPressed)
+    revealScriptButton.target = self
+    revealScriptButton.action = #selector(revealScriptsPressed)
 
-    let buttons = NSStackView(views: [editStyleButton, editScriptButton])
+    let buttons = NSStackView(views: [revealStyleButton, revealScriptButton])
     buttons.orientation = .horizontal
     buttons.spacing = 8
 
@@ -140,8 +140,8 @@ final class SitesPreferencesController: NSViewController, SettingsPane {
     }
 
     let hasDirectory = store.state.directory != nil
-    editStyleButton.isEnabled = hasDirectory
-    editScriptButton.isEnabled = hasDirectory
+    revealStyleButton.isEnabled = hasDirectory
+    revealScriptButton.isEnabled = hasDirectory
 
     emptyLabel.stringValue =
       hasDirectory
@@ -173,14 +173,18 @@ final class SitesPreferencesController: NSViewController, SettingsPane {
     reload()
   }
 
-  @objc private func editStylesPressed() { open(.css) }
-  @objc private func editScriptsPressed() { open(.js) }
+  @objc private func revealStylesPressed() { reveal(.css) }
+  @objc private func revealScriptsPressed() { reveal(.js) }
 
-  private func open(_ kind: ScriptSection.Kind) {
+  /// Selects the file in Finder rather than handing it to whichever app claims .css and .js -
+  /// which is as likely to be a browser as an editor.
+  private func reveal(_ kind: ScriptSection.Kind) {
     guard let directory = store.state.directory else { return }
 
     ExampleFiles.copyTo(directory)
-    NSWorkspace.shared.open(directory.appendingPathComponent(kind.filename))
+    NSWorkspace.shared.activateFileViewerSelecting([
+      directory.appendingPathComponent(kind.filename)
+    ])
   }
 }
 
