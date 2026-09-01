@@ -80,7 +80,7 @@ class OnboardingStep1View: NSView {
 
   @IBAction func didPressNext(_ sender: Any) {
     guard let dir = store.state.directory else { return }
-    ExampleFiles.copyTo(directoryAtPath: dir.path)
+    ExampleFiles.copyTo(dir)
     controller.goToPage(.page2)
   }
 }
@@ -153,7 +153,7 @@ class OnboardingStep3View: NSView {
     controller.close()
 
     if let delegate = NSApplication.shared.delegate as? AppDelegate {
-      delegate.preferences.show()
+      delegate.showPreferences()
     }
   }
 }

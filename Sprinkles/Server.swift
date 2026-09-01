@@ -1,7 +1,8 @@
+import CryptoKit
 import Defaults
 import Foundation
-import Regex
 import Telegraph
+import UniformTypeIdentifiers
 
 public enum ServerState {
   case stopped
@@ -12,18 +13,21 @@ public enum ServerState {
 class Server {
   static var instance = Server()
 
-  let headers: HTTPHeaders = [
-    .accessControlAllowOrigin: "*",
-    .contentType: "text/javascript; charset=utf-8",
-  ]
-  let jsonHeaders: HTTPHeaders = [
-    .accessControlAllowOrigin: "*",
-    .contentType: "application/json; charset=utf-8",
-  ]
   var server: Telegraph.Server?
 
+  /// Everything Sprinkles serves is fetched cross-origin by a page or an extension, so every
+  /// response carries the same CORS header and differs only in its content type.
+  private func headers(_ contentType: String) -> HTTPHeaders {
+    [.accessControlAllowOrigin: "*", .contentType: contentType]
+  }
+
+  private var jsonHeaders: HTTPHeaders { headers("application/json; charset=utf-8") }
+
   var state: ServerState = .stopped {
-    didSet { store.dispatch(.serverStateChanged(state)) }
+    didSet {
+      guard state != oldValue else { return }
+      store.dispatch(.serverStateChanged(state))
+    }
   }
 
   public func start(_ port: Int = 3133) {
@@ -48,12 +52,32 @@ class Server {
 
     let server = Telegraph.Server(identity: identity, caCertificates: [caCert])
 
-    // v3 manifest
-    server.route(.GET, "/v3/domains.json", handleListReq)
+    // Current API: CSS and JavaScript are served separately so that browser extensions can
+    // hand the CSS to the engine themselves instead of building a <style> element from a
+    // page-world script, which the page's Content Security Policy is free to veto.
+    server.route(.GET, "/v4/domains.json", handleDomainsReq)
+    server.route(.GET, "/v4/checksum.json", handleChecksumReq)
+    for kind in ScriptSection.Kind.allCases {
+      // Registration and handler share one `prefix`: they had to agree, and `identifier(in:)`
+      // answers `nil` rather than erroring when they don't.
+      let prefix = "/v4/\(kind.rawValue)/"
+      server.route(.GET, prefix + "*") { request in
+        self.source(request, prefix: prefix, kind: kind) { catalog, identifier in
+          catalog.source(kind: kind, domain: Self.domainKey(identifier))
+        }
+      }
+    }
+    server.route(.GET, "/v4/site/*", handleSiteReq)
+    // Clients that need CSS wrapped in the JavaScript: Sprinkles extensions before 1.5, and
+    // Safari's bundled extension, which still uses /s/* today.
+    server.route(.GET, "/v3/domains.json", handleLegacyListReq)
     server.route(.GET, "/v3/checksum.json", handleChecksumReq)
-    server.route(.GET, "/v3/s/*", handleScriptsReq)
-    // v2 manifest/legacy
-    server.route(.GET, "/s/*", handleScriptsLegacyReq)
+    server.route(.GET, "/v3/s/*", handleLegacyDomainScriptReq)
+    // v2 manifest/legacy (resolves a hostname, includes the global section)
+    server.route(.GET, "/s/*", handleLegacySiteReq)
+    // assets: anything sitting next to sprinkles.css, so that
+    // `src: url("https://localhost:3133/files/MyFont.woff2")` works from a styled page
+    server.route(.GET, "/files/*", handleFileReq)
     // meta
     server.route(.GET, "/version.json", handleVersionReq)
     server.serveBundle(.main, "/")
@@ -63,6 +87,7 @@ class Server {
     } catch {
       print(error)
       stop()
+      return
     }
 
     state = .running
@@ -71,6 +96,8 @@ class Server {
 
   public func stop() {
     server?.stop()
+    server = nil
+    state = .stopped
   }
 
   func serverDidStop(_ server: Server, error: Error?) {
@@ -81,57 +108,124 @@ class Server {
     }
   }
 
-  private func handleListReq(request: HTTPRequest) -> HTTPResponse {
-    guard let directory = store.state.directory else {
-      return HTTPResponse(.internalServerError, content: "[]")
+  // MARK: - v4
+
+  private func handleDomainsReq(request: HTTPRequest) -> HTTPResponse {
+    let catalog = ScriptCatalog.load(from: store.state.directory)
+
+    let domains: [[String: Any]] = catalog.registrableDomains.map { domain in
+      let kinds = catalog.kinds(for: domain)
+      return [
+        "id": domain,
+        "matches": ScriptParser.matchPatterns(for: domain),
+        "css": kinds.contains(.css),
+        "js": kinds.contains(.js),
+      ]
     }
 
-    let fileManager = FileManager.default
-    let files = (try? fileManager.contentsOfDirectory(atPath: directory.path)) ?? []
-    let domains =
-      files
-      .filter { $0.hasSuffix(".js") || $0.hasSuffix(".css") }
-      .filter { !$0.hasPrefix("global") }
-      .map { "(\\.js|\\.css)$".r?.replaceAll(in: $0, with: "") }
-    let uniqueDomains = Array(Set(domains.compactMap { $0 })).sorted()
+    let globalKinds = catalog.kinds(for: ScriptParser.globalIdentifier)
+    let payload: [String: Any] = [
+      "global": [
+        "enabled": catalog.isEnabled(ScriptParser.globalIdentifier),
+        "matches": ScriptParser.matchPatterns(for: ScriptParser.globalIdentifier),
+        "css": globalKinds.contains(.css),
+        "js": globalKinds.contains(.js),
+      ],
+      "domains": domains,
+    ]
 
-    let jsonData = try? JSONSerialization.data(withJSONObject: uniqueDomains)
-    let jsonString = String(data: jsonData ?? Data(), encoding: .utf8) ?? "[]"
-
-    return HTTPResponse(.ok, headers: jsonHeaders, content: jsonString)
+    return json(payload, fallback: #"{"global":{"enabled":false},"domains":[]}"#)
   }
 
-  private func handleScriptsReq(request: HTTPRequest) -> HTTPResponse {
-    guard let domain = "/s\\/(.*)\\.js".r?.findFirst(in: request.uri.path)?.group(at: 1)
+  /// Everything that applies to one hostname — the global section plus each matching domain.
+  /// Safari asks for this, because a content script only knows the page it was injected into.
+  private func handleSiteReq(request: HTTPRequest) -> HTTPResponse {
+    let kind: ScriptSection.Kind = request.uri.path.hasSuffix(".css") ? .css : .js
+    return source(request, prefix: "/v4/site/", kind: kind) { catalog, identifier in
+      catalog.source(kind: kind, host: identifier)
+    }
+  }
+
+  // MARK: - Combined-JS clients
+  //
+  // Not dead code: Safari's extension ships inside the app and still fetches `/s/*`, so this is
+  // the current and only transport for one of the three supported browsers. The axis is not
+  // old-vs-new, it is whether the client can take CSS separately or needs it wrapped in the
+  // JavaScript - which is why `injectStyleElement` lives here and not in the v4 handlers.
+
+  private func handleLegacyListReq(request: HTTPRequest) -> HTTPResponse {
+    let catalog = ScriptCatalog.load(from: store.state.directory)
+    // Extensions before 1.5 build their own match patterns and can't express a wildcard domain.
+    return json(catalog.registrableDomains.filter { !$0.hasPrefix("*.") }, fallback: "[]")
+  }
+
+  private func handleLegacyDomainScriptReq(request: HTTPRequest) -> HTTPResponse {
+    source(request, prefix: "/v3/s/", kind: .js) { catalog, identifier in
+      let domain = Self.domainKey(identifier)
+      let js = catalog.source(kind: .js, domain: domain)
+      let css = catalog.source(kind: .css, domain: domain)
+      return js + self.injectStyleElement(domain, css)
+    }
+  }
+
+  private func handleLegacySiteReq(request: HTTPRequest) -> HTTPResponse {
+    source(request, prefix: "/s/", kind: .js) { catalog, identifier in
+      let js = catalog.source(kind: .js, host: identifier)
+      let css = catalog.source(kind: .css, host: identifier)
+      return js + self.injectStyleElement(identifier, css)
+    }
+  }
+
+  // MARK: - Assets
+
+  /// Serves a file from the scripts directory. Fonts and images referenced from injected CSS
+  /// can't be loaded over `file://`, so they need somewhere on the local server to live.
+  private func handleFileReq(request: HTTPRequest) -> HTTPResponse {
+    let prefix = "/files/"
+    guard let directory = store.state.directory, request.uri.path.hasPrefix(prefix) else {
+      return HTTPResponse(.notFound)
+    }
+
+    let relative = String(request.uri.path.dropFirst(prefix.count))
+    guard let name = relative.removingPercentEncoding, !name.isEmpty else {
+      return HTTPResponse(.notFound)
+    }
+
+    // Resolved, not merely standardized: `standardizedFileURL` collapses ".." but follows no
+    // symlinks, so a link inside the scripts directory could otherwise serve any file the app
+    // can read - and these responses are sent with `Access-Control-Allow-Origin: *`, which
+    // would let any page the user visits read them back.
+    let root = directory.resolvingSymlinksInPath().standardizedFileURL
+    let url = directory.appendingPathComponent(name).resolvingSymlinksInPath().standardizedFileURL
+
+    guard url.path.hasPrefix(root.path + "/"),
+      let data = try? Data(contentsOf: url, options: .mappedIfSafe)
     else {
-      return HTTPResponse(.unprocessableEntity, content: "console.log('Failed parsing domain')")
+      return HTTPResponse(.notFound)
     }
 
-    guard let directory = store.state.directory else {
-      return HTTPResponse(.internalServerError, content: "console.log('No scripts directory set')")
-    }
-
-    let javascript = compileSet(domain, directoryURL: directory)
-
-    return HTTPResponse(HTTPStatus.ok, headers: headers, content: javascript)
+    return HTTPResponse(
+      .ok, headers: headers(Self.mimeType(for: url.pathExtension.lowercased())), body: data)
   }
 
-  private func handleScriptsLegacyReq(request: HTTPRequest) -> HTTPResponse {
-    guard let domain = "/s\\/(.*)\\.js".r?.findFirst(in: request.uri.path)?.group(at: 1)
-    else {
-      return HTTPResponse(.unprocessableEntity, content: "console.log('Failed parsing domain')")
+  private static func mimeType(for pathExtension: String) -> String {
+    // Sprinkles' own two extensions answer from `Kind`, so `/files/x.css` and `/v4/css/x.css`
+    // cannot disagree about a content type.
+    if let kind = ScriptSection.Kind(rawValue: pathExtension) { return kind.contentType }
+
+    // The font types predate UTType's table on some systems, so spell them out.
+    switch pathExtension {
+    case "woff2": return "font/woff2"
+    case "woff": return "font/woff"
+    case "ttf": return "font/ttf"
+    case "otf": return "font/otf"
+    default:
+      return UTType(filenameExtension: pathExtension)?.preferredMIMEType
+        ?? "application/octet-stream"
     }
-
-    guard let directory = store.state.directory else {
-      return HTTPResponse(.internalServerError, content: "console.log('No scripts directory set')")
-    }
-
-    let global = compileSet("global", directoryURL: directory)
-    let javascript = compileSet(domain, directoryURL: directory)
-    let combined = global.appending(javascript)
-
-    return HTTPResponse(HTTPStatus.ok, headers: headers, content: combined)
   }
+
+  // MARK: - Meta
 
   private func handleVersionReq(request: HTTPRequest) -> HTTPResponse {
     let bundle = Bundle.main
@@ -140,95 +234,99 @@ class Server {
     let buildString = bundle.object(forInfoDictionaryKey: "CFBundleVersion") as? String ?? "0"
     let build = Int(buildString) ?? 0
 
-    let json: [String: Any] = ["version": version, "build": build]
-    let jsonData = try? JSONSerialization.data(withJSONObject: json)
-    let jsonString = String(data: jsonData ?? Data(), encoding: .utf8) ?? "{}"
-
-    return HTTPResponse(.ok, headers: jsonHeaders, content: jsonString)
+    return json(["version": version, "build": build], fallback: "{}")
   }
 
+  /// A digest of everything that can change what the browser should be running: the sources
+  /// themselves and the domains switched off in Preferences. Extensions poll this and reload
+  /// when it moves, so it has to be stable across launches — `hashValue` is not.
   private func handleChecksumReq(request: HTTPRequest) -> HTTPResponse {
-    guard let directory = store.state.directory else {
-      return HTTPResponse(.internalServerError, content: "{}")
-    }
+    var hasher = SHA256()
 
-    let fileManager = FileManager.default
-    let files = (try? fileManager.contentsOfDirectory(atPath: directory.path)) ?? []
-    let scriptFiles = files.filter { $0.hasSuffix(".js") || $0.hasSuffix(".css") }
-
-    var checksum = 0
-    for file in scriptFiles {
-      let fileURL = directory.appendingPathComponent(file)
-      if let data = try? Data(contentsOf: fileURL) {
-        checksum ^= data.hashValue
+    if let directory = store.state.directory {
+      for url in ScriptCatalog.sourceFiles(in: directory) {
+        hasher.update(data: Data(url.lastPathComponent.utf8))
+        if let data = try? Data(contentsOf: url) { hasher.update(data: data) }
       }
     }
 
-    let json: [String: Any] = ["checksum": checksum]
-    let jsonData = try? JSONSerialization.data(withJSONObject: json)
-    let jsonString = String(data: jsonData ?? Data(), encoding: .utf8) ?? "{}"
-
-    return HTTPResponse(.ok, headers: jsonHeaders, content: jsonString)
-  }
-
-  private func compileSet(_ base: String, directoryURL: URL) -> String {
-    let jsURL = directoryURL.appendingPathComponent("\(base).js")
-    let cssURL = directoryURL.appendingPathComponent("\(base).css")
-
-    var javascript = tryReading(jsURL)
-    let css = tryReading(cssURL)
-    if css != "" {
-      javascript.append(injectStyleElement(base, css))
+    for domain in Defaults[.disabledDomains].sorted() {
+      hasher.update(data: Data("disabled:\(domain)".utf8))
     }
 
-    return javascript
+    let checksum = hasher.finalize().map { String(format: "%02x", $0) }.joined()
+    return json(["checksum": checksum], fallback: "{}")
   }
 
-  private func tryReading(_ url: URL) -> String {
-    if FileManager.default.fileExists(atPath: url.path) {
-      do {
-        return try String(contentsOf: url)
-      } catch {
-        print(error)
-      }
+  // MARK: - Plumbing
+
+  private func source(
+    _ request: HTTPRequest, prefix: String, kind: ScriptSection.Kind,
+    body: (ScriptCatalog, String) -> String
+  ) -> HTTPResponse {
+    let headers = self.headers("\(kind.contentType); charset=utf-8")
+
+    guard let identifier = identifier(in: request.uri.path, prefix: prefix) else {
+      return HTTPResponse(.unprocessableEntity, headers: headers, content: "")
     }
 
-    return ""
+    guard store.state.directory != nil else {
+      return HTTPResponse(.internalServerError, headers: headers, content: "")
+    }
+
+    let catalog = ScriptCatalog.load(from: store.state.directory)
+    return HTTPResponse(.ok, headers: headers, content: body(catalog, identifier))
   }
 
+  /// Pulls `example.com` out of `/v4/css/example.com.css`.
+  private func identifier(in path: String, prefix: String) -> String? {
+    guard path.hasPrefix(prefix) else { return nil }
+
+    var identifier = String(path.dropFirst(prefix.count))
+    for suffix in [".css", ".js"] where identifier.hasSuffix(suffix) {
+      identifier = String(identifier.dropLast(suffix.count))
+    }
+
+    identifier = identifier.removingPercentEncoding ?? identifier
+    guard !identifier.isEmpty, !identifier.contains("/") else { return nil }
+
+    return ScriptParser.normalize(identifier)
+  }
+
+  /// Browsers spell the global section `global` on the wire, because a bare `*` makes for an
+  /// awkward URL. Everywhere else it is `ScriptParser.globalIdentifier`.
+  static func domainKey(_ identifier: String) -> String {
+    identifier == "global" ? ScriptParser.globalIdentifier : identifier
+  }
+
+  private func json(_ object: Any, fallback: String) -> HTTPResponse {
+    let data = try? JSONSerialization.data(withJSONObject: object)
+    let string = data.flatMap { String(data: $0, encoding: .utf8) } ?? fallback
+
+    return HTTPResponse(.ok, headers: jsonHeaders, content: string)
+  }
+
+  /// Wraps CSS in the JavaScript that older extensions expect. The CSS travels as a JSON
+  /// string literal rather than a template literal — a stray backtick or a CSS escape such as
+  /// `content: "\2014"` would otherwise corrupt the script or fail to parse outright.
   private func injectStyleElement(_ label: String, _ css: String) -> String {
-    let fnName = "_SprinklesInjectStyles_\(randomChars())"
+    guard !css.isEmpty, let literal = jsStringLiteral(css) else { return "" }
 
     return """
-      ;function \(fnName)() {
-        console.groupCollapsed("Injecting Sprinkles styles (\(label))");
-        console.log(`\(css)`);
-        console.groupEnd();
 
-        var d = document;
-        var e = d.createElement('style');
-        e.dataset.sprinklesInjected = 1;
-
-        var content = `\(css)`;
-        if (window.trustedTypes && trustedTypes.createPolicy) {
-          const escapeHTMLPolicy = trustedTypes.createPolicy("myEscapePolicy", {
-            createHTML: (content) => content.replace(/\\</g, "&lt;"),
-          });
-
-          content = escapeHTMLPolicy.createHTML(content);
-        }
-
-        e.innerHTML = content;
-        d.body.appendChild(e);
-      };
-      \(fnName)();
+      ;(function () {
+        var e = document.createElement('style');
+        e.dataset.sprinkles = \(jsStringLiteral(label) ?? "\"\"");
+        e.textContent = \(literal);
+        (document.head || document.documentElement).appendChild(e);
+      })();
       """
   }
 
-  private func randomChars(length: Int = 8) -> String {
-    return String(
-      (0..<8).map { _ in
-        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789".randomElement()!
-      })
+  private func jsStringLiteral(_ value: String) -> String? {
+    guard let data = try? JSONSerialization.data(withJSONObject: value, options: .fragmentsAllowed)
+    else { return nil }
+
+    return String(data: data, encoding: .utf8)
   }
 }

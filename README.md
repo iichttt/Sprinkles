@@ -10,6 +10,32 @@ Watch the introduction on YouTube:
 
 &rarr; See [getsprinkles.app](https://getsprinkles.app)
 
+## Writing your styles and scripts
+
+Everything lives in two files in your scripts directory: `sprinkles.css` and `sprinkles.js`.
+Rules at the top apply everywhere. A marker comment starts a section for one site:
+
+```css
+body { font-size: 17px; }          /* every page */
+
+/* @domain example.com */
+h1 { font-family: Georgia, serif; }
+
+/* @domain twitter.com, x.com */   /* several sites at once */
+/* @domain *.wikipedia.org */      /* a site and its subdomains */
+```
+
+`sprinkles.js` uses the same markers with `//` comments. A bare `example.com` also covers
+`www.example.com`, and `/* @global */` reopens the everywhere section.
+
+Every section shows up in **Preferences › Sites**, where you can switch one off without
+deleting it. Fonts and images saved next to the two files are served from
+`https://localhost:3133/files/`, so `src: url("https://localhost:3133/files/YourFont.woff2")`
+works from a page.
+
+If you have files from an older Sprinkles — `global.css`, `twitter.com.js` and friends — they
+keep working, and Sprinkles offers to combine them for you on launch.
+
 ## License
 
 MIT

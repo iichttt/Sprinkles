@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		420AFFBE236B852000413745 /* OpenPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420AFFBD236B852000413745 /* OpenPanel.swift */; };
 		420AFFC0236B8D6F00413745 /* ExampleFiles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 420AFFBF236B8D6F00413745 /* ExampleFiles.swift */; };
+		42A1B10100000001 /* Scripts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42A1B10200000001 /* Scripts.swift */; };
+		42A1B10300000001 /* ScriptsMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42A1B10400000001 /* ScriptsMigration.swift */; };
+		42A1B10500000001 /* SitesPreferencesController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42A1B10600000001 /* SitesPreferencesController.swift */; };
 		421FDA0A21F513EB004BDB68 /* Defaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 421FDA0921F513EB004BDB68 /* Defaults.swift */; };
 		423D94F6224C1DED0079CEFE /* gen_cert.sh in Resources */ = {isa = PBXBuildFile; fileRef = 423D94ED224C1DED0079CEFE /* gen_cert.sh */; };
 		423D94FA224C1DED0079CEFE /* sprinkles.csr.conf in Resources */ = {isa = PBXBuildFile; fileRef = 423D94F1224C1DED0079CEFE /* sprinkles.csr.conf */; };
@@ -30,6 +33,8 @@
 		42708F3E2DA04CD6006C80AA /* background.js in Resources */ = {isa = PBXBuildFile; fileRef = 42708F372DA04CD6006C80AA /* background.js */; };
 		42755C3B24D89B1500B146A8 /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42755C3A24D89B1500B146A8 /* SafariWebExtensionHandler.swift */; };
 		42755C4024D89B1500B146A8 /* images in Resources */ = {isa = PBXBuildFile; fileRef = 42755C3F24D89B1500B146A8 /* images */; };
+		42A1B10700000001 /* chrome in Resources */ = {isa = PBXBuildFile; fileRef = 42A1B10800000001 /* chrome */; };
+		42A1B10900000001 /* ff in Resources */ = {isa = PBXBuildFile; fileRef = 42A1B10A00000001 /* ff */; };
 		42755C4224D89B1500B146A8 /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 42755C4124D89B1500B146A8 /* manifest.json */; };
 		42755C5124D89B1500B146A8 /* Sprinkles Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 42755C3724D89B1500B146A8 /* Sprinkles Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		4280928A258AA95100735974 /* ExtensionLinks.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42809289258AA95100735974 /* ExtensionLinks.swift */; };
@@ -37,9 +42,7 @@
 		42ABC9692400A0E3009CA2CE /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 42ABC9682400A0E2009CA2CE /* Main.storyboard */; };
 		42ABC96B240265FB009CA2CE /* StatusItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42ABC96A240265FB009CA2CE /* StatusItem.swift */; };
 		42BC395A244450890082F7EB /* General.xib in Resources */ = {isa = PBXBuildFile; fileRef = 42BC3959244450890082F7EB /* General.xib */; };
-		42BD715A2C7DC5D8009C5C78 /* logo.png in Resources */ = {isa = PBXBuildFile; fileRef = 42BD71592C7DC5D8009C5C78 /* logo.png */; };
 		42D952422575ABC500CBF4A4 /* Telegraph in Frameworks */ = {isa = PBXBuildFile; productRef = 42D952412575ABC500CBF4A4 /* Telegraph */; };
-		42DFEDE5234E217C00916DCB /* Regex in Frameworks */ = {isa = PBXBuildFile; productRef = 42DFEDE4234E217C00916DCB /* Regex */; };
 		42E163BD2C7DF66000B02C6D /* Defaults in Frameworks */ = {isa = PBXBuildFile; productRef = 42E163BC2C7DF66000B02C6D /* Defaults */; };
 		42E163C32C7DF7E900B02C6D /* LaunchAtLogin in Frameworks */ = {isa = PBXBuildFile; productRef = 42E163C22C7DF7E900B02C6D /* LaunchAtLogin */; };
 		42E163C62C7DFA9700B02C6D /* Settings in Frameworks */ = {isa = PBXBuildFile; productRef = 42E163C52C7DFA9700B02C6D /* Settings */; };
@@ -50,13 +53,6 @@
 
 /* Begin PBXContainerItemProxy section */
 		425A178721EFC86700C57D44 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 425A176B21EFC86500C57D44 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 425A177221EFC86500C57D44;
-			remoteInfo = Sprinkles;
-		};
-		425A179221EFC86700C57D44 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 425A176B21EFC86500C57D44 /* Project object */;
 			proxyType = 1;
@@ -99,6 +95,9 @@
 /* Begin PBXFileReference section */
 		420AFFBD236B852000413745 /* OpenPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenPanel.swift; sourceTree = "<group>"; };
 		420AFFBF236B8D6F00413745 /* ExampleFiles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExampleFiles.swift; sourceTree = "<group>"; };
+		42A1B10200000001 /* Scripts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scripts.swift; sourceTree = "<group>"; };
+		42A1B10400000001 /* ScriptsMigration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScriptsMigration.swift; sourceTree = "<group>"; };
+		42A1B10600000001 /* SitesPreferencesController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SitesPreferencesController.swift; sourceTree = "<group>"; };
 		421FDA0921F513EB004BDB68 /* Defaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Defaults.swift; sourceTree = "<group>"; };
 		423D94ED224C1DED0079CEFE /* gen_cert.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = gen_cert.sh; sourceTree = "<group>"; };
 		423D94F1224C1DED0079CEFE /* sprinkles.csr.conf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = sprinkles.csr.conf; sourceTree = "<group>"; };
@@ -111,7 +110,6 @@
 		425A178621EFC86700C57D44 /* SprinklesTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SprinklesTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		425A178A21EFC86700C57D44 /* SprinklesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SprinklesTests.swift; sourceTree = "<group>"; };
 		425A178C21EFC86700C57D44 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		425A179121EFC86700C57D44 /* SprinklesUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SprinklesUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		425A17CD21F0875300C57D44 /* Store.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Store.swift; sourceTree = "<group>"; };
 		425A17CF21F08BED00C57D44 /* Taste.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Taste.swift; sourceTree = "<group>"; };
 		425A17EB21F1C1AF00C57D44 /* Server.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Server.swift; sourceTree = "<group>"; };
@@ -127,6 +125,8 @@
 		42755C3724D89B1500B146A8 /* Sprinkles Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Sprinkles Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		42755C3A24D89B1500B146A8 /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
 		42755C3F24D89B1500B146A8 /* images */ = {isa = PBXFileReference; lastKnownFileType = folder; path = images; sourceTree = "<group>"; };
+		42A1B10800000001 /* chrome */ = {isa = PBXFileReference; lastKnownFileType = folder; name = chrome; path = web-ext/chrome; sourceTree = SOURCE_ROOT; };
+		42A1B10A00000001 /* ff */ = {isa = PBXFileReference; lastKnownFileType = folder; name = ff; path = web-ext/ff; sourceTree = SOURCE_ROOT; };
 		42755C4124D89B1500B146A8 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = manifest.json; sourceTree = "<group>"; };
 		42755C4D24D89B1500B146A8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		42755C4E24D89B1500B146A8 /* Sprinkles_Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Sprinkles_Extension.entitlements; sourceTree = "<group>"; };
@@ -135,7 +135,6 @@
 		42ABC9682400A0E2009CA2CE /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		42ABC96A240265FB009CA2CE /* StatusItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusItem.swift; sourceTree = "<group>"; };
 		42BC3959244450890082F7EB /* General.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = General.xib; sourceTree = "<group>"; };
-		42BD71592C7DC5D8009C5C78 /* logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = logo.png; path = Resources/AppIcon.appiconset/logo.png; sourceTree = SOURCE_ROOT; };
 		42FA61AE23528A1E006A1029 /* Onboarding.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = Onboarding.xib; sourceTree = "<group>"; };
 		42FA61B12353449E006A1029 /* OnboardingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingController.swift; sourceTree = "<group>"; };
 		42FBC4EA23EEA9E0004C710E /* GeneralPreferencesController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GeneralPreferencesController.swift; sourceTree = "<group>"; };
@@ -146,7 +145,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				42DFEDE5234E217C00916DCB /* Regex in Frameworks */,
 				42E163C62C7DFA9700B02C6D /* Settings in Frameworks */,
 				42D952422575ABC500CBF4A4 /* Telegraph in Frameworks */,
 				42E163C32C7DF7E900B02C6D /* LaunchAtLogin in Frameworks */,
@@ -155,13 +153,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		425A178321EFC86700C57D44 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		425A178E21EFC86700C57D44 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -205,7 +196,6 @@
 			children = (
 				425A177321EFC86500C57D44 /* Sprinkles.app */,
 				425A178621EFC86700C57D44 /* SprinklesTests.xctest */,
-				425A179121EFC86700C57D44 /* SprinklesUITests.xctest */,
 				42755C3724D89B1500B146A8 /* Sprinkles Extension.appex */,
 			);
 			name = Products;
@@ -218,6 +208,11 @@
 				429543E021F27387007EBAF3 /* Bookmark.swift */,
 				421FDA0921F513EB004BDB68 /* Defaults.swift */,
 				420AFFBF236B8D6F00413745 /* ExampleFiles.swift */,
+				42A1B10200000001 /* Scripts.swift */,
+				42A1B10400000001 /* ScriptsMigration.swift */,
+				42A1B10600000001 /* SitesPreferencesController.swift */,
+				42A1B10800000001 /* chrome */,
+				42A1B10A00000001 /* ff */,
 				42809289258AA95100735974 /* ExtensionLinks.swift */,
 				42FBC4EA23EEA9E0004C710E /* GeneralPreferencesController.swift */,
 				42FA61B12353449E006A1029 /* OnboardingController.swift */,
@@ -282,7 +277,6 @@
 				42690B632216D0A300DF8AB3 /* favicon.ico */,
 				42690B622216D0A300DF8AB3 /* favicon.png */,
 				42690B602216CCC400DF8AB3 /* index.html */,
-				42BD71592C7DC5D8009C5C78 /* logo.png */,
 			);
 			path = Static;
 			sourceTree = "<group>";
@@ -327,7 +321,6 @@
 			);
 			name = Sprinkles;
 			packageProductDependencies = (
-				42DFEDE4234E217C00916DCB /* Regex */,
 				42D952412575ABC500CBF4A4 /* Telegraph */,
 				42E163BC2C7DF66000B02C6D /* Defaults */,
 				42E163C22C7DF7E900B02C6D /* LaunchAtLogin */,
@@ -354,24 +347,6 @@
 			productName = SprinklesTests;
 			productReference = 425A178621EFC86700C57D44 /* SprinklesTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
-		};
-		425A179021EFC86700C57D44 /* SprinklesUITests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 425A17BD21EFC86700C57D44 /* Build configuration list for PBXNativeTarget "SprinklesUITests" */;
-			buildPhases = (
-				425A178D21EFC86700C57D44 /* Sources */,
-				425A178E21EFC86700C57D44 /* Frameworks */,
-				425A178F21EFC86700C57D44 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				425A179321EFC86700C57D44 /* PBXTargetDependency */,
-			);
-			name = SprinklesUITests;
-			productName = SprinklesUITests;
-			productReference = 425A179121EFC86700C57D44 /* SprinklesUITests.xctest */;
-			productType = "com.apple.product-type.bundle.ui-testing";
 		};
 		42755C3624D89B1500B146A8 /* Sprinkles Extension */ = {
 			isa = PBXNativeTarget;
@@ -421,11 +396,6 @@
 						LastSwiftMigration = 1020;
 						TestTargetID = 425A177221EFC86500C57D44;
 					};
-					425A179021EFC86700C57D44 = {
-						CreatedOnToolsVersion = 10.1;
-						LastSwiftMigration = 1020;
-						TestTargetID = 425A177221EFC86500C57D44;
-					};
 					42755C3624D89B1500B146A8 = {
 						CreatedOnToolsVersion = 12.0;
 					};
@@ -441,7 +411,6 @@
 			);
 			mainGroup = 425A176A21EFC86500C57D44;
 			packageReferences = (
-				42DFEDE3234E217C00916DCB /* XCRemoteSwiftPackageReference "Regex" */,
 				42D952402575ABC500CBF4A4 /* XCRemoteSwiftPackageReference "Telegraph" */,
 				42BD715C2C7DF3CB009C5C78 /* XCRemoteSwiftPackageReference "Defaults" */,
 				42E163C12C7DF7E900B02C6D /* XCRemoteSwiftPackageReference "LaunchAtLogin-Modern" */,
@@ -453,7 +422,6 @@
 			targets = (
 				425A177221EFC86500C57D44 /* Sprinkles */,
 				425A178521EFC86700C57D44 /* SprinklesTests */,
-				425A179021EFC86700C57D44 /* SprinklesUITests */,
 				42755C3624D89B1500B146A8 /* Sprinkles Extension */,
 			);
 		};
@@ -474,19 +442,13 @@
 				425A178021EFC86700C57D44 /* Assets.xcassets in Resources */,
 				423D94FE224C1DED0079CEFE /* v3.ext in Resources */,
 				42FA61AF23528A1E006A1029 /* Onboarding.xib in Resources */,
-				42BD715A2C7DC5D8009C5C78 /* logo.png in Resources */,
 				42690B652216D0A300DF8AB3 /* favicon.ico in Resources */,
+				42A1B10700000001 /* chrome in Resources */,
+				42A1B10900000001 /* ff in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		425A178421EFC86700C57D44 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		425A178F21EFC86700C57D44 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -544,6 +506,9 @@
 				420AFFBE236B852000413745 /* OpenPanel.swift in Sources */,
 				42ABC96B240265FB009CA2CE /* StatusItem.swift in Sources */,
 				420AFFC0236B8D6F00413745 /* ExampleFiles.swift in Sources */,
+				42A1B10100000001 /* Scripts.swift in Sources */,
+				42A1B10300000001 /* ScriptsMigration.swift in Sources */,
+				42A1B10500000001 /* SitesPreferencesController.swift in Sources */,
 				42FBC4EB23EEA9E0004C710E /* GeneralPreferencesController.swift in Sources */,
 				429543E121F27387007EBAF3 /* Bookmark.swift in Sources */,
 				42FA61B22353449E006A1029 /* OnboardingController.swift in Sources */,
@@ -556,13 +521,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				425A178B21EFC86700C57D44 /* SprinklesTests.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		425A178D21EFC86700C57D44 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -581,11 +539,6 @@
 			isa = PBXTargetDependency;
 			target = 425A177221EFC86500C57D44 /* Sprinkles */;
 			targetProxy = 425A178721EFC86700C57D44 /* PBXContainerItemProxy */;
-		};
-		425A179321EFC86700C57D44 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 425A177221EFC86500C57D44 /* Sprinkles */;
-			targetProxy = 425A179221EFC86700C57D44 /* PBXContainerItemProxy */;
 		};
 		42755C5024D89B1500B146A8 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -631,7 +584,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 131;
+				CURRENT_PROJECT_VERSION = 132;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				DEVELOPMENT_TEAM = DDB8SQMXS9;
@@ -653,7 +606,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				MARKETING_VERSION = 1.2.1;
+				MARKETING_VERSION = 1.5.0;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -699,7 +652,7 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 131;
+				CURRENT_PROJECT_VERSION = 132;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = DDB8SQMXS9;
@@ -715,7 +668,7 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				MARKETING_VERSION = 1.2.1;
+				MARKETING_VERSION = 1.5.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
@@ -817,46 +770,6 @@
 			};
 			name = Release;
 		};
-		425A17BE21EFC86700C57D44 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
-				DEAD_CODE_STRIPPING = YES;
-				INFOPLIST_FILE = SprinklesUITests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/../Frameworks",
-				);
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.brnbw.SprinklesUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 5.0;
-				TEST_TARGET_NAME = Sprinkles;
-			};
-			name = Debug;
-		};
-		425A17BF21EFC86700C57D44 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
-				DEAD_CODE_STRIPPING = YES;
-				INFOPLIST_FILE = SprinklesUITests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/../Frameworks",
-				);
-				MACOSX_DEPLOYMENT_TARGET = 13.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.brnbw.SprinklesUITests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 5.0;
-				TEST_TARGET_NAME = Sprinkles;
-			};
-			name = Release;
-		};
 		42755C5324D89B1500B146A8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -931,15 +844,6 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		425A17BD21EFC86700C57D44 /* Build configuration list for PBXNativeTarget "SprinklesUITests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				425A17BE21EFC86700C57D44 /* Debug */,
-				425A17BF21EFC86700C57D44 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		42755C5224D89B1500B146A8 /* Build configuration list for PBXNativeTarget "Sprinkles Extension" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -968,14 +872,6 @@
 				minimumVersion = 0.28.0;
 			};
 		};
-		42DFEDE3234E217C00916DCB /* XCRemoteSwiftPackageReference "Regex" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "git@github.com:crossroadlabs/Regex.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.0;
-			};
-		};
 		42E163C12C7DF7E900B02C6D /* XCRemoteSwiftPackageReference "LaunchAtLogin-Modern" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/sindresorhus/LaunchAtLogin-Modern";
@@ -999,11 +895,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 42D952402575ABC500CBF4A4 /* XCRemoteSwiftPackageReference "Telegraph" */;
 			productName = Telegraph;
-		};
-		42DFEDE4234E217C00916DCB /* Regex */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 42DFEDE3234E217C00916DCB /* XCRemoteSwiftPackageReference "Regex" */;
-			productName = Regex;
 		};
 		42E163BC2C7DF66000B02C6D /* Defaults */ = {
 			isa = XCSwiftPackageProductDependency;

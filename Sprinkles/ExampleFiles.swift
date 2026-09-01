@@ -1,46 +1,72 @@
 import Foundation
 
+/// The two files Sprinkles creates in a freshly picked scripts directory.
 class ExampleFiles {
-  static let globalCSS =
+  /// Explains the marker syntax. Identical in both files, so it lives in one place - a block
+  /// comment reads the same either way.
+  private static let markerHelp =
     """
-    /* This is Sprinkles' global.css.
+    /* Below a marker, the lines apply to that site only — www.example.com counts too.
+     * Separate several domains with commas ("twitter.com, x.com"), or start a domain
+     * with "*." to include its subdomains ("*.wikipedia.org").
      *
-     * The styles you add here will be added to every page you visit.
-     *
-     * To add styles specific to a single domain, create files in this directory, named
-     * after the (full) domain, eg. "twitter.com.css" or "subdomain.example.com.css".
-     *
-     * For example, uncomment the line below to get an extra creamy web experience: */
+     * Every section shows up in Preferences › Sites, where you can switch it off
+     * without deleting it.
+     */
+    """
 
-     /* body { background-color: papayawhip; } */
+  static let css =
+    """
+    /* sprinkles.css — all of your styles, in one file.
+     *
+     * Rules up here, above the first marker, apply to every page you visit.
+     * Uncomment the line below for an extra creamy web experience.
+     */
+
+    /* body { background-color: papayawhip; } */
+
+    \(markerHelp)
+
+    /* Fonts and images saved next to this file are served by Sprinkles, so a webfont of your
+     * own can be reached at https://localhost:3133/files/YourFont.woff2 — pages can't load
+     * file:// URLs, but they can load that one.
+     */
+
+    /* @domain example.com */
+
+    /* h1 { font-family: Georgia, serif; } */
     """
 
-  static let globalJS =
+  static let js =
     """
-    // This is Sprinkles' global.js.
+    // sprinkles.js — all of your scripts, in one file.
     //
-    // The JavaScript code you add here will be run on every page you visit.
-    //
-    // To add scripts specific to a single domain, create files in this directory, name
-    // after the domain, eg. "twitter.com.js" or "subdomain.example.com.js".
-    //
-    // For example, uncomment the lines below to change every image on the web to random new one:
+    // Code up here, above the first marker, runs on every page you visit.
+    // Uncomment the lines below to swap every image on the web for a random one.
 
     // for (const elm of document.querySelectorAll("img")) {
     //   elm.src = `//picsum.photos/${elm.width}`
     // }
+
+    \(markerHelp)
+
+    // @domain example.com
+
+    // console.log("Sprinkles is running here")
     """
 
-  static func copyTo(directoryAtPath path: String) {
-    writeIfNotExists(path: path + "/global.css", content: globalCSS)
-    writeIfNotExists(path: path + "/global.js", content: globalJS)
+  static func copyTo(_ directory: URL) {
+    for kind in ScriptSection.Kind.allCases {
+      writeIfNotExists(
+        url: directory.appendingPathComponent(kind.filename),
+        content: kind == .css ? css : js)
+    }
   }
 
-  private static func writeIfNotExists(path: String, content: String) {
-    if !FileManager.default.fileExists(atPath: path) {
-      print("Writing default \(path)")
-      FileManager.default.createFile(
-        atPath: path, contents: content.data(using: .utf8), attributes: nil)
-    }
+  private static func writeIfNotExists(url: URL, content: String) {
+    guard !FileManager.default.fileExists(atPath: url.path) else { return }
+    print("Writing default \(url.path)")
+    FileManager.default.createFile(
+      atPath: url.path, contents: content.data(using: .utf8), attributes: nil)
   }
 }
