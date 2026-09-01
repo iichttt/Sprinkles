@@ -17,7 +17,7 @@ final class SitesPreferencesController: NSViewController, SettingsPane {
     comment — /* @domain example.com */ or // @domain example.com — and it shows up here.
     """
 
-  private let tableView = NSTableView()
+  private let tableView = SiteListTableView()
   private let emptyLabel = NSTextField(wrappingLabelWithString: "")
   private let revealStyleButton = NSButton(title: "Reveal sprinkles.css", target: nil, action: nil)
   private let revealScriptButton = NSButton(title: "Reveal sprinkles.js", target: nil, action: nil)
@@ -227,5 +227,27 @@ extension SitesPreferencesController: NSTableViewDataSource, NSTableViewDelegate
     checkbox.tag = row
     checkbox.state = entry.isEnabled ? .on : .off
     return checkbox
+  }
+}
+
+/// A table whose list stops where its rows do.
+///
+/// `usesAlternatingRowBackgroundColors` stripes the whole height of the scroll view, so a short
+/// list trails off into empty bands that look like rows waiting to be filled in. There is no
+/// switch for that, but the stripes below the last row are drawn by the table's own background
+/// pass, so painting that region back over afterwards leaves the rows themselves untouched -
+/// including the rounded, inset shape the `.inset` style gives them.
+private final class SiteListTableView: NSTableView {
+  override func drawBackground(inClipRect clipRect: NSRect) {
+    super.drawBackground(inClipRect: clipRect)
+
+    // The view is flipped, so the empty space is everything below the last row's bottom edge.
+    let end = numberOfRows > 0 ? rect(ofRow: numberOfRows - 1).maxY : bounds.minY
+    let top = max(clipRect.minY, end)
+
+    guard clipRect.maxY > top else { return }
+
+    backgroundColor.setFill()
+    NSRect(x: clipRect.minX, y: top, width: clipRect.width, height: clipRect.maxY - top).fill()
   }
 }
