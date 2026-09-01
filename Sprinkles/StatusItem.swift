@@ -32,7 +32,7 @@ class StatusItem: NSObject {
       let image = NSImage(
         systemSymbolName: symbolName, accessibilityDescription: "Sprinkles")
     else {
-      return NSImage(named: NSImage.Name("ToolbarItemIcon"))
+      return nil
     }
 
     let configuration = NSImage.SymbolConfiguration(pointSize: 15, weight: .regular)
