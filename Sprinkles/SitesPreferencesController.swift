@@ -202,7 +202,24 @@ extension SitesPreferencesController: NSTableViewDataSource, NSTableViewDelegate
       label.font = .preferredFont(forTextStyle: .caption1)
       label.textColor = .secondaryLabelColor
       label.alignment = .right
-      return label
+      label.translatesAutoresizingMaskIntoConstraints = false
+
+      // A text field handed straight to the table is stretched to the full height of the row and
+      // draws its text from the top of that, which left these sitting a few points above the
+      // domain names beside them - the more so because the caption font is shorter than the
+      // checkbox titles it lines up against. Centring it in a cell view puts the two on the same
+      // line at any row height.
+      let cell = NSTableCellView()
+      cell.addSubview(label)
+      cell.textField = label
+
+      NSLayoutConstraint.activate([
+        label.leadingAnchor.constraint(equalTo: cell.leadingAnchor),
+        label.trailingAnchor.constraint(equalTo: cell.trailingAnchor),
+        label.centerYAnchor.constraint(equalTo: cell.centerYAnchor),
+      ])
+
+      return cell
     }
 
     let checkbox = NSButton(

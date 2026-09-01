@@ -16,6 +16,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     style: .segmentedControl)
 
   private var hasOfferedMigration = false
+  private var trustTimer: Timer?
 
   func applicationDidFinishLaunching(_ aNotification: Notification) {
     if Defaults[.userId] == nil {
@@ -40,12 +41,26 @@ class AppDelegate: NSObject, NSApplicationDelegate {
       self.offerMigrationIfNeeded(state)
     }
 
+    startWatchingCertificateTrust()
+
     if !Defaults[.hasOnboarded] {
       showOnboarding()
     }
   }
 
+  /// Nothing tells an app when a certificate stops being trusted - the setting lives in the
+  /// keychain, and Keychain Access can revoke it at any moment - so it is re-checked periodically
+  /// to keep the menu bar icon honest. A generous tolerance lets the system fold the wake-up into
+  /// whatever else it was already doing.
+  private func startWatchingCertificateTrust() {
+    trustTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: true) { _ in
+      SprinklesCertificate.refreshTrust()
+    }
+    trustTimer?.tolerance = 30
+  }
+
   func applicationWillTerminate(_ aNotification: Notification) {
+    trustTimer?.invalidate()
     Server.instance.stop()
   }
 

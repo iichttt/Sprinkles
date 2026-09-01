@@ -67,6 +67,10 @@ class GeneralPreferencesController: NSViewController, SettingsPane {
   private func refreshCertificateStatus() {
     let trusted = SprinklesCertificate.isTrusted
 
+    // The pane has just paid for the evaluation, so hand the answer to the store rather than
+    // making the menu bar icon wait for its own timer to come round again.
+    SprinklesCertificate.publishTrust(trusted)
+
     certificateLight.image = NSImage(
       named: trusted ? NSImage.statusAvailableName : NSImage.statusUnavailableName)
     certificateLight.title = trusted ? "Trusted" : "Not trusted — browsers will refuse to connect"

@@ -60,6 +60,22 @@ class SprinklesCertificate {
     return SecTrustEvaluateWithError(trust, nil)
   }
 
+  /// Records the certificate's trust in the store, so the menu bar icon follows it.
+  ///
+  /// Only dispatches on a change: this runs on a timer, and every dispatch runs all the reducers
+  /// and wakes every subscriber.
+  static func publishTrust(_ trusted: Bool) {
+    guard trusted != store.state.isCertTrusted else { return }
+    store.dispatch(.certificateTrusted(trusted))
+  }
+
+  /// Re-evaluates trust off the main thread and publishes the result. Needed on a timer rather
+  /// than once at launch because the setting lives in the keychain, where Keychain Access can
+  /// revoke it without Sprinkles hearing anything about it.
+  static func refreshTrust() {
+    DispatchQueue.global(qos: .utility).async { publishTrust(isTrusted) }
+  }
+
   /// Files the existing CA in the keychain and marks it trusted, reporting whether it took.
   /// macOS asks the user to authorise the trust change, so this can legitimately be declined.
   static func trust() -> Bool {

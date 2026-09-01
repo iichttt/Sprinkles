@@ -21,10 +21,19 @@ class StatusItem: NSObject {
     statusItem.menu = buildMenu()
 
     unsubscribe = store.subscribe { state in
-      // Dimmed while the local server is down, so a broken setup is visible at a glance.
-      button?.appearsDisabled = state.serverState != .running
-      button?.toolTip = state.serverState == .running ? "Sprinkles" : "Sprinkles — server stopped"
+      // Dimmed whenever the browser extensions cannot reach Sprinkles - a stopped server and an
+      // untrusted certificate look identical from a page's point of view, and both leave every
+      // site unstyled, so both dim the icon and the tooltip says which one it is.
+      button?.appearsDisabled = !(state.serverState == .running && state.isCertTrusted)
+      button?.toolTip = Self.tooltip(for: state)
     }
+  }
+
+  private static func tooltip(for state: State) -> String {
+    if state.serverState != .running { return "Sprinkles — server stopped" }
+    if !state.isCertTrusted { return "Sprinkles — certificate not trusted" }
+
+    return "Sprinkles"
   }
 
   private static func icon() -> NSImage? {

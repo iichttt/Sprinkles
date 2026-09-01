@@ -5,6 +5,7 @@ public enum Action {
   case setDirectory(URL)
   case serverStateChanged(ServerState)
   case hasCert(Bool)
+  case certificateTrusted(Bool)
   case setIsOnboarding(Bool)
 }
 
@@ -13,6 +14,7 @@ public struct State {
   var files: [String] = []
   var serverState: ServerState = .stopped
   var hasCert = SprinklesCertificate.exists
+  var isCertTrusted = SprinklesCertificate.isTrusted
   var isOnboarding = false
 }
 
@@ -27,6 +29,9 @@ public let reducer = Reducer<Action, State> { action, state in
 
   case .hasCert(let value):
     state.hasCert = value
+
+  case .certificateTrusted(let value):
+    state.isCertTrusted = value
 
   case .setIsOnboarding(let value):
     state.isOnboarding = value
