@@ -163,43 +163,31 @@
                                 <rect key="frame" x="144" y="125" width="166" height="50"/>
                                 <subviews>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="dhA-G8-yFI">
-                                        <rect key="frame" x="0.0" y="-1" width="50" height="52"/>
-                                        <buttonCell key="cell" type="smallSquare" bezelStyle="smallSquare" image="Safari" imagePosition="overlaps" alignment="center" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="1tJ-tK-nkQ">
+                                        <rect key="frame" x="0.0" y="0.0" width="72" height="32"/>
+                                        <buttonCell key="cell" type="push" title="Safari" bezelStyle="rounded" alignment="center" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="1tJ-tK-nkQ">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>
-                                        <constraints>
-                                            <constraint firstAttribute="width" constant="50" id="5Lo-pV-HsS"/>
-                                            <constraint firstAttribute="height" constant="50" id="cz5-fF-n0f"/>
-                                        </constraints>
                                         <connections>
                                             <action selector="safariPressed:" target="-2" id="xFf-pT-Ilx"/>
                                         </connections>
                                     </button>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="IJb-Yo-Uds">
-                                        <rect key="frame" x="58" y="-1" width="50" height="52"/>
-                                        <buttonCell key="cell" type="smallSquare" bezelStyle="smallSquare" image="Firefox" imagePosition="overlaps" alignment="center" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="0wX-ak-OFo">
+                                        <rect key="frame" x="0.0" y="0.0" width="78" height="32"/>
+                                        <buttonCell key="cell" type="push" title="Firefox" bezelStyle="rounded" alignment="center" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="0wX-ak-OFo">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>
-                                        <constraints>
-                                            <constraint firstAttribute="width" constant="50" id="4JD-oh-9pW"/>
-                                            <constraint firstAttribute="height" constant="50" id="Uh7-5z-Ajn"/>
-                                        </constraints>
                                         <connections>
                                             <action selector="firefoxPressed:" target="-2" id="CZh-YB-6gB"/>
                                         </connections>
                                     </button>
                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="owZ-vd-m3x">
-                                        <rect key="frame" x="116" y="-1" width="50" height="52"/>
-                                        <buttonCell key="cell" type="smallSquare" bezelStyle="smallSquare" image="Chrome" imagePosition="overlaps" alignment="center" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="N76-KE-lZu">
+                                        <rect key="frame" x="0.0" y="0.0" width="76" height="32"/>
+                                        <buttonCell key="cell" type="push" title="Chrome" bezelStyle="rounded" alignment="center" lineBreakMode="truncatingTail" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="N76-KE-lZu">
                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                             <font key="font" metaFont="system"/>
                                         </buttonCell>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="50" id="RcF-xt-fVk"/>
-                                            <constraint firstAttribute="width" constant="50" id="urO-Ai-7rF"/>
-                                        </constraints>
                                         <connections>
                                             <action selector="chromePressed:" target="-2" id="oE9-Pc-6Tz"/>
                                         </connections>

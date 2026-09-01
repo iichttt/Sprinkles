@@ -55,7 +55,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
   func showPreferences() {
     preferences.show()
+    styleSettingsToolbar()
     bringToFront(preferences.window)
+  }
+
+  /// The Settings package puts the pane titles on the toolbar item *and* draws them as segment
+  /// labels, so every pane's name appeared twice - once in the segmented control, once again
+  /// underneath it. It also brackets the control with flexible spaces, which centres it in the
+  /// space left of the traffic lights rather than in the window.
+  private func styleSettingsToolbar() {
+    guard let toolbar = preferences.window?.toolbar else { return }
+
+    toolbar.displayMode = .iconOnly
+    toolbar.centeredItemIdentifier = NSToolbarItem.Identifier("toolbarSegmentedControlItem")
   }
 
   func showOnboarding() {

@@ -23,7 +23,7 @@ class ExtensionLinks {
       steps: """
         1. Open about:debugging#/runtime/this-firefox
         2. Click “Load Temporary Add-on…”
-        3. Pick manifest.json in the folder Sprinkles just revealed in Finder.
+        3. Press ⌘⇧G, paste the path below, then pick manifest.json
         """)
   }
 
@@ -36,14 +36,13 @@ class ExtensionLinks {
     revealUnpackedExtension(
       named: "chrome", browser: "Chrome",
       steps: """
-        1. Open chrome://extensions
-        2. Turn on Developer mode, then “Allow User Scripts” for Sprinkles
-        3. Click “Load unpacked” and pick the folder Sprinkles just revealed in Finder.
+        1. Open chrome://extensions and turn on Developer mode
+        2. Click “Load unpacked”, press ⌘⇧G, and paste the path below
+        3. Open Sprinkles’ Details and turn on “Allow User Scripts”
         """)
   }
 
-  /// Copies the extension out of the app bundle so the browser can load it unpacked from a
-  /// stable location, then shows it in Finder along with the steps for that browser.
+  /// Shows the extension that ships inside the app bundle, with the steps for that browser.
   private static func revealUnpackedExtension(named name: String, browser: String, steps: String) {
     guard let url = unpackedExtension(named: name) else {
       return missingAppAlert(
@@ -65,35 +64,17 @@ class ExtensionLinks {
     }
   }
 
-  /// The bundled copy is read-only and replaced on every app update, so it is mirrored into
-  /// Application Support where a browser can keep pointing at the same path.
+  /// The unpacked extension as built into the app bundle - the copy that matches this version.
+  ///
+  /// It used to be mirrored into Application Support, but the app is sandboxed, so that resolves
+  /// to ~/Library/Containers/com.brnbw.Sprinkles/Data/Library/Application Support: a path the
+  /// user cannot navigate to and would not recognise as theirs.
   private static func unpackedExtension(named name: String) -> URL? {
-    guard let bundled = Bundle.main.resourceURL?.appendingPathComponent(name),
-      FileManager.default.fileExists(atPath: bundled.path)
+    guard let url = Bundle.main.resourceURL?.appendingPathComponent(name),
+      FileManager.default.fileExists(atPath: url.path)
     else { return nil }
 
-    guard
-      let support = try? FileManager.default.url(
-        for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
-    else { return bundled }
-
-    // Scoped to Sprinkles: this path is deleted before each copy, and
-    // <Application Support>/Extensions is not ours to remove.
-    let destination = support.appendingPathComponent("Sprinkles/Extensions/\(name)")
-
-    do {
-      try FileManager.default.createDirectory(
-        at: destination.deletingLastPathComponent(), withIntermediateDirectories: true)
-      if FileManager.default.fileExists(atPath: destination.path) {
-        try FileManager.default.removeItem(at: destination)
-      }
-      try FileManager.default.copyItem(at: bundled, to: destination)
-    } catch {
-      print(error)
-      return bundled
-    }
-
-    return destination
+    return url
   }
 
   private static func isInstalled(_ bundleIdentifier: String) -> Bool {

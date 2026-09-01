@@ -299,7 +299,7 @@ You will be asked your password. This is necessary to mark the freshly generated
                 </textField>
                 <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="UE4-Ss-UJq">
                     <rect key="frame" x="40" y="218" width="195" height="32"/>
-                    <buttonCell key="cell" type="push" title="Open Safari Extensions" bezelStyle="rounded" image="Safari" imagePosition="left" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="nZC-O8-LDP">
+                    <buttonCell key="cell" type="push" title="Open Safari Extensions" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="nZC-O8-LDP">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                         <font key="font" metaFont="system"/>
                     </buttonCell>
@@ -309,7 +309,7 @@ You will be asked your password. This is necessary to mark the freshly generated
                 </button>
                 <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="O7U-AH-WP8">
                     <rect key="frame" x="40" y="186" width="242" height="32"/>
-                    <buttonCell key="cell" type="push" title="Install Mozilla Firefox extension" bezelStyle="rounded" image="Firefox" imagePosition="left" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="4dC-O5-7HP">
+                    <buttonCell key="cell" type="push" title="Install Mozilla Firefox extension" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="4dC-O5-7HP">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                         <font key="font" metaFont="system"/>
                     </buttonCell>
@@ -319,7 +319,7 @@ You will be asked your password. This is necessary to mark the freshly generated
                 </button>
                 <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="1c8-cV-8ON">
                     <rect key="frame" x="40" y="154" width="250" height="32"/>
-                    <buttonCell key="cell" type="push" title="Install Google Chrome extension" bezelStyle="rounded" image="Chrome" imagePosition="left" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="OnO-jb-KCc">
+                    <buttonCell key="cell" type="push" title="Install Google Chrome extension" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="OnO-jb-KCc">
                         <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                         <font key="font" metaFont="system"/>
                     </buttonCell>
