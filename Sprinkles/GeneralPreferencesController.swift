@@ -11,10 +11,11 @@ class GeneralPreferencesController: NSViewController, SettingsPane {
   override var nibName: NSNib.Name? { "General" }
 
   @IBOutlet var statusLight: NSButton!
+  @IBOutlet var certificateLight: NSButton!
+  @IBOutlet var trustCertificateButton: NSButton!
   @IBOutlet var directoryPathControl: NSPathControl!
   @IBOutlet var pickLocationButton: NSButton!
   @IBOutlet var revealButton: NSButton!
-  @IBOutlet var showPreferencesOnLaunchCheckbox: NSButton!
   @IBOutlet var launchAtLoginCheckbox: NSButton!
   @IBOutlet var diagnosticsCheckbox: NSButton!
   @IBOutlet var safariButton: NSButton!
@@ -31,7 +32,7 @@ class GeneralPreferencesController: NSViewController, SettingsPane {
   override func viewDidLoad() {
     super.viewDidLoad()
 
-    self.preferredContentSize = NSSize(width: 480, height: 403)
+    self.preferredContentSize = NSSize(width: 480, height: 325)
 
     unsubscribe = store.subscribe { state in
       self.directoryPathControl.url = state.directory
@@ -51,6 +52,25 @@ class GeneralPreferencesController: NSViewController, SettingsPane {
     }
 
     launchAtLoginCheckbox.state = LaunchAtLogin.isEnabled ? .on : .off
+
+    refreshCertificateStatus()
+  }
+
+  override func viewWillAppear() {
+    super.viewWillAppear()
+
+    // Re-checked every time the pane is shown rather than once at load: the trust setting lives in
+    // the keychain, not beside the certificate files, so it can disappear while Sprinkles runs.
+    refreshCertificateStatus()
+  }
+
+  private func refreshCertificateStatus() {
+    let trusted = SprinklesCertificate.isTrusted
+
+    certificateLight.image = NSImage(
+      named: trusted ? NSImage.statusAvailableName : NSImage.statusUnavailableName)
+    certificateLight.title = trusted ? "Trusted" : "Not trusted — browsers will refuse to connect"
+    trustCertificateButton.isHidden = trusted
   }
 
   @IBAction func chooseLocationPressed(_ sender: Any?) {
@@ -65,10 +85,6 @@ class GeneralPreferencesController: NSViewController, SettingsPane {
   @IBAction func revealButtonPressed(_ sender: Any?) {
     guard let dir = store.state.directory else { return }
     NSWorkspace.shared.open(dir)
-  }
-
-  @IBAction func showPreferencesOnLaunchPressed(_ sender: Any?) {
-    Defaults[.showPreferencesOnLaunch] = showPreferencesOnLaunchCheckbox.state == .on
   }
 
   @IBAction func launchAtStartupPressed(_ sender: Any?) {
@@ -91,9 +107,29 @@ class GeneralPreferencesController: NSViewController, SettingsPane {
     ExtensionLinks.chrome()
   }
 
-  @IBAction func resetCertsPressed(_ sender: Any?) {
-    SprinklesCertificate.destroy()
-    Defaults[.hasOnboarded] = false
-    NSApp.relaunch()
+  @IBAction func trustCertificatePressed(_ sender: Any?) {
+    let trusted = SprinklesCertificate.trust()
+    refreshCertificateStatus()
+
+    guard !trusted else { return }
+
+    // Only reached when macOS asked to authorise the change and did not get it, so say what is
+    // still broken instead of leaving the light red with no explanation.
+    let alert = NSAlert()
+    alert.messageText = "Sprinkles could not trust its certificate"
+    alert.informativeText = """
+      macOS has to authorise the change and that was declined, so browsers will keep refusing \
+      https://localhost:3133 and no styles or scripts will load.
+
+      You can also trust it yourself by opening the certificate in Keychain Access.
+      """
+    alert.addButton(withTitle: "OK")
+    alert.addButton(withTitle: "Show Certificate")
+
+    if alert.runModal() == .alertSecondButtonReturn {
+      NSWorkspace.shared.activateFileViewerSelecting([
+        URL(fileURLWithPath: SprinklesCertificate.caPath)
+      ])
+    }
   }
 }

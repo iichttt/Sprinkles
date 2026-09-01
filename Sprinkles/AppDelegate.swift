@@ -40,10 +40,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
       self.offerMigrationIfNeeded(state)
     }
 
-    if Defaults[.showPreferencesOnLaunch] {
-      showPreferences()
-    }
-
     if !Defaults[.hasOnboarded] {
       showOnboarding()
     }

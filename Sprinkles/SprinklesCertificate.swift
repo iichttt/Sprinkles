@@ -40,39 +40,64 @@ class SprinklesCertificate {
     }
   }
 
-  static func acceptCert() {
-    var err: OSStatus = noErr
+  /// Whether browsers will accept the certificate the local server presents.
+  ///
+  /// The CA signs its own certificate, so evaluation succeeds only while it is an anchor in the
+  /// user's trust store. That setting lives in the keychain rather than beside the files in
+  /// `Certs`, so it can go missing on its own - a keychain reset or an OS migration is enough -
+  /// and until it is restored every browser rejects https://localhost:3133 while the files on
+  /// disk still look perfectly healthy.
+  static var isTrusted: Bool {
+    guard let rootCert = rootCert() else { return false }
 
+    var trust: SecTrust?
+
+    guard
+      SecTrustCreateWithCertificates(rootCert, SecPolicyCreateBasicX509(), &trust) == errSecSuccess,
+      let trust
+    else { return false }
+
+    return SecTrustEvaluateWithError(trust, nil)
+  }
+
+  /// Files the existing CA in the keychain and marks it trusted, reporting whether it took.
+  /// macOS asks the user to authorise the trust change, so this can legitimately be declined.
+  static func trust() -> Bool {
+    acceptCert()
+
+    return isTrusted
+  }
+
+  static func acceptCert() {
     guard let rootCert = rootCert() else { return }
 
     let dict = NSDictionary.init(
       objects: [kSecClassCertificate, rootCert],
       forKeys: [kSecClass as! NSCopying, kSecValueRef as! NSCopying])
 
-    err = SecItemAdd(dict, nil)
-    print(SecCopyErrorMessageString(err, nil)!)
+    // A duplicate is not a failure: the certificate is already filed and only the trust settings
+    // below are missing, which is exactly the state this repairs.
+    let added = SecItemAdd(dict, nil)
+    if added != errSecSuccess && added != errSecDuplicateItem {
+      report("Could not add the Sprinkles certificate", added)
+    }
 
-    var status: OSStatus = noErr
-    status = SecTrustSettingsSetTrustSettings(rootCert, SecTrustSettingsDomain.user, nil)
-    print(SecCopyErrorMessageString(status, nil)!)
+    // Passing no settings means "use the default", which for a self-signed root is to trust it as
+    // an anchor.
+    let trusted = SecTrustSettingsSetTrustSettings(rootCert, SecTrustSettingsDomain.user, nil)
+    if trusted != errSecSuccess {
+      report("Could not trust the Sprinkles certificate", trusted)
+    }
   }
 
-  static func destroy() {
-    if let rootCert = rootCert() {
-      var status: OSStatus = noErr
-      status = SecTrustSettingsSetTrustSettings(rootCert, SecTrustSettingsDomain.user, nil)
-      print(SecCopyErrorMessageString(status, nil)!)
-    }
-
-    do {
-      try FileManager.default.removeItem(at: URL(fileURLWithPath: dir))
-    } catch {
-      print(error)
-    }
+  private static func report(_ message: String, _ status: OSStatus) {
+    let reason = SecCopyErrorMessageString(status, nil) as String? ?? "OSStatus \(status)"
+    print("\(message): \(reason)")
   }
 
   private static func rootCert() -> SecCertificate? {
-    let data = NSData(contentsOf: URL(fileURLWithPath: caPath))!
-    return SecCertificateCreateWithData(nil, data)
+    guard let data = try? Data(contentsOf: URL(fileURLWithPath: caPath)) else { return nil }
+
+    return SecCertificateCreateWithData(nil, data as CFData)
   }
 }
