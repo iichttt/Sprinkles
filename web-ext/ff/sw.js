@@ -55,24 +55,34 @@ function persistInjected() {
   return pendingPersist;
 }
 
-API.runtime.onInstalled.addListener(async () => {
-  await reload();
+// A rejection out of a listener is collected and shown against the add-on, so every entry point
+// logs its own failure instead of leaking one.
+function reportFailure(what) {
+  return (e) => console.error(`Sprinkles: ${what} failed:`, e);
+}
+
+API.runtime.onInstalled.addListener(() => {
+  reload().catch(reportFailure("reload after install"));
 });
 
-API.action.onClicked.addListener(async () => {
-  await reload();
+API.action.onClicked.addListener(() => {
+  reload().catch(reportFailure("reload from the toolbar"));
 });
 
-API.permissions.onAdded.addListener(async (permissions) => {
-  if (permissions.permissions.includes("userScripts")) {
-    await reload();
-  }
+API.permissions.onAdded.addListener((permissions) => {
+  if (!permissions.permissions.includes("userScripts")) return;
+
+  reload().catch(reportFailure("reload after the userScripts permission was granted"));
 });
 
-API.permissions.onRemoved.addListener(async (permissions) => {
-  if (permissions.permissions.includes("userScripts")) {
-    await API.userScripts.unregister();
-  }
+API.permissions.onRemoved.addListener((permissions) => {
+  if (!permissions.permissions.includes("userScripts")) return;
+
+  // The namespace goes away with the permission, so reaching for it here can throw rather than
+  // reject - and there is nothing left registered to clear anyway.
+  Promise.resolve()
+    .then(() => API.userScripts?.unregister())
+    .catch(reportFailure("clearing user scripts"));
 });
 
 API.webNavigation.onCommitted.addListener(async (details) => {
@@ -194,8 +204,14 @@ async function fetchDomains() {
 }
 
 async function fetchScript(domain) {
-  const res = await fetch(`${SERVER}/v4/js/${encodeURIComponent(domain)}.js`);
-  return res.text();
+  try {
+    const res = await fetch(`${SERVER}/v4/js/${encodeURIComponent(domain)}.js`);
+    if (res.ok) return res.text();
+  } catch (e) {
+    console.error(`Failed to fetch the user script for ${domain}:`, e);
+  }
+
+  return "";
 }
 
 async function register(domain, matches, code) {
@@ -269,7 +285,8 @@ async function applyStylesNow(key, tabId, frameId, url, fresh) {
     injected.set(key, { host, css });
     await persistInjected();
   } catch (e) {
-    console.error(`Failed to inject styles for ${host}:`, e);
+    // Injection is refused on privileged pages, which the global section matches too. Normal.
+    console.debug(`Skipped styles for ${host}:`, e);
   }
 }
 

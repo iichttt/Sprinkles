@@ -55,12 +55,18 @@ function persistInjected() {
   return pendingPersist;
 }
 
+// An uncaught rejection inside a listener is what Chrome collects and shows as a row under the
+// extension's "Errors" button, so every entry point logs its own failure instead of leaking one.
+function reportFailure(what) {
+  return (e) => console.error(`Sprinkles: ${what} failed:`, e);
+}
+
 API.runtime.onInstalled.addListener(() => {
-  reload();
+  reload().catch(reportFailure("reload after install"));
 });
 
 API.action.onClicked.addListener(() => {
-  reload();
+  reload().catch(reportFailure("reload from the toolbar"));
 });
 
 API.webNavigation.onCommitted.addListener(async (details) => {
@@ -142,9 +148,22 @@ async function reload() {
   await registerScripts(global, domains);
 }
 
+// Reading `chrome.userScripts` *throws* while "Allow user scripts" is off - it does not merely
+// evaluate to undefined - so availability has to be probed with a try/catch. A bare `!API.userScripts`
+// threw out of reload() on every run, which is what filled the extension's error list.
+function userScriptsAPI() {
+  try {
+    return API.userScripts ?? null;
+  } catch (e) {
+    return null;
+  }
+}
+
 async function registerScripts(global, domains) {
-  if (!API.userScripts) {
-    console.log("The userScripts API is unavailable — allow user scripts for Sprinkles to use it");
+  if (!userScriptsAPI()) {
+    console.log(
+      'Sprinkles: user scripts are off - open Sprinkles\' Details and turn on "Allow user scripts" to run JavaScript',
+    );
     return;
   }
 
@@ -189,8 +208,14 @@ async function fetchDomains() {
 }
 
 async function fetchScript(domain) {
-  const res = await fetch(`${SERVER}/v4/js/${encodeURIComponent(domain)}.js`);
-  return res.text();
+  try {
+    const res = await fetch(`${SERVER}/v4/js/${encodeURIComponent(domain)}.js`);
+    if (res.ok) return res.text();
+  } catch (e) {
+    console.error(`Failed to fetch the user script for ${domain}:`, e);
+  }
+
+  return "";
 }
 
 async function register(domain, matches, code) {
@@ -264,7 +289,10 @@ async function applyStylesNow(key, tabId, frameId, url, fresh) {
     injected.set(key, { host, css });
     await persistInjected();
   } catch (e) {
-    console.error(`Failed to inject styles for ${host}:`, e);
+    // Chrome refuses injection on pages no extension may touch: the Web Store, the New Tab page's
+    // remote frame, other extensions' pages. The global section matches those too, so this is a
+    // normal outcome rather than a fault worth reporting.
+    console.debug(`Skipped styles for ${host}:`, e);
   }
 }
 
