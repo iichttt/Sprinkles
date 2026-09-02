@@ -63,24 +63,25 @@ function reportFailure(what) {
 
 // Chrome's built-in CJK sans-serif families on macOS are the old two-weight ones (Hiragino Kaku
 // Gothic ProN for Japanese has only W3 and W6), so `font-weight: 400` snaps down to W3 and pages
-// come out lighter than in Safari, which lets CoreText pick Hiragino Sans W4. These take their
-// place for pages that end their font stack in `sans-serif`; pages that name a font directly are
-// unaffected. Chrome clears extension-set font preferences when the extension is disabled or
-// removed, so this undoes itself.
+// come out lighter than in Safari, which lets CoreText pick Hiragino Sans W4. Chrome clears
+// extension-set font preferences when the extension is disabled or removed, so this undoes itself.
 //
 // Japanese is given as a PostScript name on purpose. Asked for the family "Hiragino Sans", Chrome
 // treats W3 as its regular face and still renders weight 400 as W3. Asked for the face
 // HiraginoSans-W4, Chrome uses it for regular text and steps up within the family for bold, so
 // 400 → W4 and 700 → W6. (The full name "Hiragino Sans W4" would pin bold to W4 as well.)
-const SANS_SERIF_BY_SCRIPT = {
-  Jpan: "HiraginoSans-W4",
-  Hans: "Hiragino Sans GB",
-  Hant: "Hiragino Sans TC",
-};
-
 async function applyFontSettings() {
+  // These faces ship only with macOS; anywhere else the built-in defaults are the right ones.
+  if (!navigator.platform.startsWith("Mac")) return;
+
+  const sansSerifByScript = {
+    Jpan: "HiraginoSans-W4",
+    Hans: "Hiragino Sans GB",
+    Hant: "Hiragino Sans TC",
+  };
+
   await Promise.all(
-    Object.entries(SANS_SERIF_BY_SCRIPT).map(([script, fontId]) =>
+    Object.entries(sansSerifByScript).map(([script, fontId]) =>
       API.fontSettings.setFont({ script, genericFamily: "sansserif", fontId }),
     ),
   );
