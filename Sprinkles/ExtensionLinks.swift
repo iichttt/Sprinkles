@@ -27,12 +27,9 @@ class ExtensionLinks {
     alert.alertStyle = .informational
 
     guard let state else {
-      alert.messageText = "You don't have the Sprinkles extension installed"
-      alert.informativeText = """
-        Safari's extension ships inside the Sprinkles app rather than on its own, so installing it \
-        means installing Sprinkles from the App Store.
-        """
-      alert.addButton(withTitle: "Install from the App Store")
+      alert.messageText = "You don't have the Safari extension yet"
+      alert.informativeText = "It comes with Sprinkles from the App Store."
+      alert.addButton(withTitle: "Get It")
       alert.addButton(withTitle: "Cancel")
 
       if alert.runModal() == .alertFirstButtonReturn { NSWorkspace.shared.open(appStoreURL) }
@@ -41,13 +38,13 @@ class ExtensionLinks {
 
     alert.messageText =
       state.isEnabled
-      ? "You already have the Sprinkles extension, and it's on"
-      : "You already have the Sprinkles extension, it just isn't on"
+      ? "Safari is already using Sprinkles"
+      : "You have the extension — it's just switched off"
     alert.informativeText =
       state.isEnabled
-      ? "Safari is running it. Take a look at its settings if you want to check what it can reach."
-      : "Open Safari's settings and tick “Sprinkles” under Extensions."
-    alert.addButton(withTitle: "Take Me to Safari's Settings")
+      ? "Nothing to do here."
+      : "Tick Sprinkles under Extensions and you're set."
+    alert.addButton(withTitle: "Open Safari Settings")
     alert.addButton(withTitle: "Cancel")
 
     guard alert.runModal() == .alertFirstButtonReturn else { return }
@@ -56,9 +53,7 @@ class ExtensionLinks {
       guard let error else { return }
 
       DispatchQueue.main.async {
-        self.alert(
-          "Safari couldn't open its extension settings.\n\n\(error.localizedDescription)",
-          style: .warning)
+        self.alert("Safari wouldn't open its settings.", style: .warning)
       }
     }
   }
@@ -76,8 +71,7 @@ class ExtensionLinks {
           2. Click “Load Temporary Add-on…”
           3. Press ⌘⇧G, then ⌘V, then Return twice
 
-          Firefox drops temporary add-ons when it quits, so this has to be done again after a \
-          restart.
+          Firefox forgets this when it quits, so you'll need to do it again next time.
           """))
   }
 
@@ -89,9 +83,9 @@ class ExtensionLinks {
         directory: "chrome",
         target: { $0 },
         steps: """
-          1. Go to chrome://extensions and turn on “Developer mode”, top right
+          1. Go to chrome://extensions and switch on “Developer mode”, top right
           2. Click “Load unpacked”, then press ⌘⇧G, ⌘V and Return twice
-          3. Open Sprinkles’ “Details” and turn on “Allow user scripts” to run JavaScript
+          3. For JavaScript, open Sprinkles’ “Details” and allow user scripts
           """))
   }
 
@@ -114,13 +108,12 @@ class ExtensionLinks {
   private static func load(_ browser: Browser) {
     guard let app = NSWorkspace.shared.urlForApplication(withBundleIdentifier: browser.bundleIdentifier)
     else {
-      return alert(
-        "You don't seem to have \(browser.name) installed?", style: .warning)
+      return alert("\(browser.name) doesn't seem to be installed.", style: .warning)
     }
 
     guard let directory = unpackedExtension(named: browser.directory) else {
       return alert(
-        "Sprinkles couldn't find its \(browser.name) extension. Try reinstalling Sprinkles.",
+        "Sprinkles can't find its \(browser.name) extension. Try installing Sprinkles again.",
         style: .warning)
     }
 
@@ -129,8 +122,10 @@ class ExtensionLinks {
     NSPasteboard.general.setString(path, forType: .string)
 
     let alert = NSAlert()
-    alert.messageText = "Load the Sprinkles extension in \(browser.name)"
-    alert.informativeText = "\(browser.steps)\n\nCopied to your clipboard:\n\(path)"
+    alert.messageText = "Add Sprinkles to \(browser.name)"
+    // The path is on the clipboard rather than in the text: it is long, it means nothing to read,
+    // and the only thing anyone needs to do with it is paste it.
+    alert.informativeText = "\(browser.steps)\n\nThe path is on your clipboard."
     alert.alertStyle = .informational
     alert.addButton(withTitle: "Open \(browser.name)")
     alert.addButton(withTitle: "Cancel")
