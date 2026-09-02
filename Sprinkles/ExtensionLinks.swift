@@ -3,7 +3,9 @@ import Foundation
 import SafariServices
 
 class ExtensionLinks {
-  private static let extensionIdentifier = "com.brnbw.Sprinkles.Sprinkles-Extension"
+  /// The appex is signed with the app's identifier plus its own suffix, whatever team built it.
+  private static let extensionIdentifier =
+    (Bundle.main.bundleIdentifier ?? "com.iichttt.Sprinkles") + ".Sprinkles-Extension"
 
   /// Sprinkles on the Mac App Store. The Safari extension has no listing of its own - it ships
   /// inside the app - so this is where a copy Safari will load comes from.
@@ -146,7 +148,7 @@ class ExtensionLinks {
   /// The unpacked extension as built into the app bundle - the copy that matches this version.
   ///
   /// It used to be mirrored into Application Support, but the app is sandboxed, so that resolves
-  /// to ~/Library/Containers/com.brnbw.Sprinkles/Data/Library/Application Support: a path the
+  /// to ~/Library/Containers/<bundle id>/Data/Library/Application Support: a path the
   /// user cannot navigate to and would not recognise as theirs.
   private static func unpackedExtension(named name: String) -> URL? {
     guard let url = Bundle.main.resourceURL?.appendingPathComponent(name),
