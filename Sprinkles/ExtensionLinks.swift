@@ -29,7 +29,7 @@ class ExtensionLinks {
     alert.alertStyle = .informational
 
     guard let state else {
-      alert.messageText = "You don't have the Safari extension yet"
+      alert.messageText = "You do not have the Safari extension yet"
       alert.informativeText = "It comes with Sprinkles from the App Store."
       alert.addButton(withTitle: "Get It")
       alert.addButton(withTitle: "Cancel")
@@ -41,11 +41,11 @@ class ExtensionLinks {
     alert.messageText =
       state.isEnabled
       ? "Safari is already using Sprinkles"
-      : "You have the extension — it's just switched off"
+      : "You have the extension, but it is switched off"
     alert.informativeText =
       state.isEnabled
       ? "Nothing to do here."
-      : "Tick Sprinkles under Extensions and you're set."
+      : "Turn on Sprinkles under Extensions to finish."
     alert.addButton(withTitle: "Open Safari Settings")
     alert.addButton(withTitle: "Cancel")
 
@@ -55,7 +55,7 @@ class ExtensionLinks {
       guard let error else { return }
 
       DispatchQueue.main.async {
-        self.alert("Safari wouldn't open its settings.", style: .warning)
+        self.alert("Safari could not open its settings.", style: .warning)
       }
     }
   }
@@ -71,9 +71,9 @@ class ExtensionLinks {
         steps: """
           1. Go to about:debugging#/runtime/this-firefox
           2. Click “Load Temporary Add-on…”
-          3. Press ⌘⇧G, paste with ⌘V, then hit Return (or just click “Open” if that's easier)
+          3. Press ⌘⇧G, paste with ⌘V, then hit Return
 
-          Firefox forgets this when it quits, so you'll need to do it again next time.
+          Firefox forgets this when it quits, so it will need to be done again next time.
           """))
   }
 
@@ -85,8 +85,8 @@ class ExtensionLinks {
         directory: "chrome",
         target: { $0 },
         steps: """
-          1. Go to chrome://extensions and switch on “Developer mode”, top right
-          2. Click “Load unpacked”, press ⌘⇧G, paste with ⌘V, then hit Return (or just click “Select” if that's easier)
+          1. Go to chrome://extensions and switch on “Developer mode” in the top-right corner
+          2. Click “Load unpacked”, press ⌘⇧G, paste with ⌘V, then hit Return
           3. For JavaScript, open Sprinkles’ “Details” and allow user scripts
           """))
   }
@@ -110,12 +110,12 @@ class ExtensionLinks {
   private static func load(_ browser: Browser) {
     guard let app = NSWorkspace.shared.urlForApplication(withBundleIdentifier: browser.bundleIdentifier)
     else {
-      return alert("\(browser.name) doesn't seem to be installed.", style: .warning)
+      return alert("\(browser.name) does not seem to be installed.", style: .warning)
     }
 
     guard let directory = unpackedExtension(named: browser.directory) else {
       return alert(
-        "Sprinkles can't find its \(browser.name) extension. Try installing Sprinkles again.",
+        "Sprinkles cannot find its \(browser.name) extension. Try installing Sprinkles again.",
         style: .warning)
     }
 
