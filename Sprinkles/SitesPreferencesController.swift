@@ -75,12 +75,10 @@ final class SitesPreferencesController: NSViewController, SettingsPane {
     scrollView.hasVerticalScroller = true
     scrollView.borderType = .bezelBorder
     scrollView.autohidesScrollers = true
-    // The pane is a fixed height, so a long list scrolls rather than stretching the window. With
-    // the system's default overlay scrollers there is nothing to say so: they fade out a second
-    // after they appear, leaving a list that runs past the last visible row looking like one that
-    // simply ends there. A legacy scroller stays while the list overflows, and `autohidesScrollers`
-    // takes it away again as soon as everything fits.
-    scrollView.scrollerStyle = .legacy
+    // The pane is a fixed height, so a long list scrolls rather than stretching the window. Which
+    // scroller says so is left to `NSScroller.preferredScrollerStyle`: someone who has set "Show
+    // scroll bars: Always" gets a bar in its own gutter, and everyone else gets the overlay knob
+    // that fades, the same as every other list they use.
 
     emptyLabel.alignment = .center
     emptyLabel.textColor = .secondaryLabelColor
