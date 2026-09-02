@@ -71,7 +71,7 @@ class ExtensionLinks {
         steps: """
           1. Go to about:debugging#/runtime/this-firefox
           2. Click “Load Temporary Add-on…”
-          3. Press ⌘⇧G, then ⌘V, then Return twice
+          3. Press ⌘⇧G, paste with ⌘V, then hit Return (or just click “Open” if that's easier)
 
           Firefox forgets this when it quits, so you'll need to do it again next time.
           """))
@@ -86,7 +86,7 @@ class ExtensionLinks {
         target: { $0 },
         steps: """
           1. Go to chrome://extensions and switch on “Developer mode”, top right
-          2. Click “Load unpacked”, then press ⌘⇧G, ⌘V and Return twice
+          2. Click “Load unpacked”, press ⌘⇧G, paste with ⌘V, then hit Return (or just click “Select” if that's easier)
           3. For JavaScript, open Sprinkles’ “Details” and allow user scripts
           """))
   }
