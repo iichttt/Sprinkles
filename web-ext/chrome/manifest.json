@@ -16,7 +16,7 @@
     },
     "default_title": "Reload user scripts"
   },
-  "permissions": ["scripting", "userScripts", "webNavigation", "storage"],
+  "permissions": ["scripting", "userScripts", "webNavigation", "storage", "fontSettings"],
   "host_permissions": ["<all_urls>"],
   "background": {
     "service_worker": "sw.js",
