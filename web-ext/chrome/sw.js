@@ -96,6 +96,38 @@ API.action.onClicked.addListener(() => {
   reload().catch(reportFailure("reload from the toolbar"));
 });
 
+// Firefox picks a toolbar icon per theme through theme_icons and Safari treats a monochrome one as
+// a template image; Chrome does neither, so the black glyph stays black against a dark toolbar and
+// the icon has to be swapped by hand. The theme is only legible through matchMedia, which a
+// service worker does not have - hence the offscreen document, whose whole job is to report it.
+async function watchToolbarTheme() {
+  if (await API.offscreen.hasDocument()) return;
+
+  await API.offscreen.createDocument({
+    url: "theme.html",
+    reasons: ["MATCH_MEDIA"],
+    justification: "Reads prefers-color-scheme so the toolbar icon can match the toolbar.",
+  });
+}
+
+API.runtime.onMessage.addListener((message) => {
+  if (message?.event !== "theme") return;
+
+  // "-dark" names the icon for a dark toolbar - the white glyph - as it does for Firefox.
+  const suffix = message.dark ? "-dark" : "";
+
+  API.action
+    .setIcon({
+      path: {
+        16: `images/toolbar-icon${suffix}-16.png`,
+        32: `images/toolbar-icon${suffix}-32.png`,
+      },
+    })
+    .catch(reportFailure("setting the toolbar icon"));
+});
+
+watchToolbarTheme().catch(reportFailure("watching the toolbar theme"));
+
 API.webNavigation.onCommitted.addListener(async (details) => {
   // A commit means a brand new document, so nothing we injected before is still there. The
   // clearing happens inside applyStyles' per-frame chain rather than here, so it cannot land in
